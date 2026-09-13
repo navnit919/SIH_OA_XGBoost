@@ -1,0 +1,63 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+.venv/
+.venv-1/
+venv/
+env/
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Streamlit secrets
+.streamlit/secrets.toml
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs / temporary files
+*.log
+*.tmp
+*.temp
+
+# Patient / medical data
+patient_data/
+patients/
+medical_data/
+
+# Private datasets
+data/gait/*.csv
+
+# Large trained models
+models/**/*.pth
+models/**/*.pt
+models/**/*.pkl
+models/**/*.joblib
+models/**/*.onnx
+models/**/*.h5
+models/**/*.keras
+
+# Camera recordings
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.webm
+
+# Python cache
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Jupyter
+.ipynb_checkpoints/

@@ -1,0 +1,93 @@
+{
+    "n_trials": 188,
+    "n_subjects": 27,
+    "n_oa_trials": 61,
+    "n_non_oa_trials": 127,
+    "cv_strategy": "5-fold StratifiedGroupKFold by subject",
+    "random_state": 42,
+    "overall": {
+        "accuracy": 0.6117021276595744,
+        "precision": 0.3695652173913043,
+        "sensitivity": 0.2786885245901639,
+        "specificity": 0.7716535433070866,
+        "f1": 0.3177570093457944,
+        "roc_auc": 0.5413708532335098,
+        "confusion_matrix": [
+            [
+                98,
+                29
+            ],
+            [
+                44,
+                17
+            ]
+        ]
+    },
+    "folds": [
+        {
+            "fold": 1,
+            "accuracy": 0.6341463414634146,
+            "precision": 0.0,
+            "sensitivity": 0.0,
+            "specificity": 0.9629629629629629,
+            "f1": 0.0,
+            "roc_auc": 0.6931216931216931,
+            "train_trials": 147,
+            "test_trials": 41,
+            "train_subjects": 21,
+            "test_subjects": 6
+        },
+        {
+            "fold": 2,
+            "accuracy": 0.4722222222222222,
+            "precision": 0.125,
+            "sensitivity": 0.07692307692307693,
+            "specificity": 0.6956521739130435,
+            "f1": 0.09523809523809523,
+            "roc_auc": 0.4214046822742475,
+            "train_trials": 152,
+            "test_trials": 36,
+            "train_subjects": 22,
+            "test_subjects": 5
+        },
+        {
+            "fold": 3,
+            "accuracy": 0.9142857142857143,
+            "precision": 0.9090909090909091,
+            "sensitivity": 0.8333333333333334,
+            "specificity": 0.9565217391304348,
+            "f1": 0.8695652173913043,
+            "roc_auc": 0.9637681159420289,
+            "train_trials": 153,
+            "test_trials": 35,
+            "train_subjects": 22,
+            "test_subjects": 5
+        },
+        {
+            "fold": 4,
+            "accuracy": 0.42857142857142855,
+            "precision": 0.17647058823529413,
+            "sensitivity": 0.3333333333333333,
+            "specificity": 0.46153846153846156,
+            "f1": 0.23076923076923078,
+            "roc_auc": 0.24786324786324784,
+            "train_trials": 153,
+            "test_trials": 35,
+            "train_subjects": 22,
+            "test_subjects": 5
+        },
+        {
+            "fold": 5,
+            "accuracy": 0.6097560975609756,
+            "precision": 0.3333333333333333,
+            "sensitivity": 0.23076923076923078,
+            "specificity": 0.7857142857142857,
+            "f1": 0.2727272727272727,
+            "roc_auc": 0.5631868131868132,
+            "train_trials": 147,
+            "test_trials": 41,
+            "train_subjects": 21,
+            "test_subjects": 6
+        }
+    ]
+}

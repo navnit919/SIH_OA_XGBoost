@@ -1,0 +1,160 @@
+{
+    "version": "v5",
+    "dataset": {
+        "rows": 188,
+        "subjects": 27,
+        "oa_trials": 61,
+        "non_oa_trials": 127
+    },
+    "features": [
+        "knee_rom",
+        "knee_mean",
+        "knee_std",
+        "knee_max_flex",
+        "knee_min_flex",
+        "knee_median",
+        "mean_velocity",
+        "velocity_std",
+        "rom_std",
+        "max_flex_timing"
+    ],
+    "threshold": 0.5,
+    "validation": {
+        "method": "StratifiedGroupKFold",
+        "n_splits": 5,
+        "shuffle": true,
+        "random_state": 42
+    },
+    "xgboost_parameters": {
+        "n_estimators": 250,
+        "max_depth": 2,
+        "learning_rate": 0.035,
+        "min_child_weight": 5,
+        "subsample": 0.8,
+        "colsample_bytree": 0.8,
+        "reg_alpha": 0.5,
+        "reg_lambda": 2.0,
+        "objective": "binary:logistic",
+        "eval_metric": "logloss",
+        "random_state": 42,
+        "n_jobs": -1,
+        "scale_pos_weight": 2.081967213114754
+    },
+    "metrics": {
+        "accuracy": 0.6542553191489362,
+        "precision": 0.4523809523809524,
+        "sensitivity": 0.3114754098360656,
+        "specificity": 0.8188976377952756,
+        "f1": 0.36893203883495146,
+        "roc_auc": 0.5735123273525236
+    },
+    "confusion_matrix": [
+        [
+            104,
+            23
+        ],
+        [
+            42,
+            19
+        ]
+    ],
+    "feature_importance": {
+        "velocity_std": 0.17433805763721466,
+        "knee_median": 0.12432565540075302,
+        "knee_mean": 0.11775670945644379,
+        "knee_std": 0.1174531802535057,
+        "mean_velocity": 0.10442408174276352,
+        "knee_rom": 0.08960722386837006,
+        "knee_min_flex": 0.07953208684921265,
+        "max_flex_timing": 0.06554549932479858,
+        "knee_max_flex": 0.06460104882717133,
+        "rom_std": 0.06241646781563759
+    },
+    "fold_results": [
+        {
+            "fold": 1,
+            "train_samples": 147,
+            "test_samples": 41,
+            "train_subjects": 21,
+            "test_subjects": 6,
+            "accuracy": 0.5365853658536586,
+            "precision": 0.0,
+            "sensitivity": 0.0,
+            "specificity": 0.8148148148148148,
+            "f1": 0.0,
+            "roc_auc": 0.5026455026455027,
+            "tn": 22,
+            "fp": 5,
+            "fn": 14,
+            "tp": 0
+        },
+        {
+            "fold": 2,
+            "train_samples": 152,
+            "test_samples": 36,
+            "train_subjects": 22,
+            "test_subjects": 5,
+            "accuracy": 0.6111111111111112,
+            "precision": 0.3333333333333333,
+            "sensitivity": 0.07692307692307693,
+            "specificity": 0.9130434782608695,
+            "f1": 0.125,
+            "roc_auc": 0.5585284280936456,
+            "tn": 21,
+            "fp": 2,
+            "fn": 12,
+            "tp": 1
+        },
+        {
+            "fold": 3,
+            "train_samples": 153,
+            "test_samples": 35,
+            "train_subjects": 22,
+            "test_subjects": 5,
+            "accuracy": 0.8571428571428571,
+            "precision": 0.8181818181818182,
+            "sensitivity": 0.75,
+            "specificity": 0.9130434782608695,
+            "f1": 0.782608695652174,
+            "roc_auc": 0.8115942028985508,
+            "tn": 21,
+            "fp": 2,
+            "fn": 3,
+            "tp": 9
+        },
+        {
+            "fold": 4,
+            "train_samples": 153,
+            "test_samples": 35,
+            "train_subjects": 22,
+            "test_subjects": 5,
+            "accuracy": 0.45714285714285713,
+            "precision": 0.2222222222222222,
+            "sensitivity": 0.4444444444444444,
+            "specificity": 0.46153846153846156,
+            "f1": 0.2962962962962963,
+            "roc_auc": 0.32905982905982906,
+            "tn": 12,
+            "fp": 14,
+            "fn": 5,
+            "tp": 4
+        },
+        {
+            "fold": 5,
+            "train_samples": 147,
+            "test_samples": 41,
+            "train_subjects": 21,
+            "test_subjects": 6,
+            "accuracy": 0.8048780487804879,
+            "precision": 1.0,
+            "sensitivity": 0.38461538461538464,
+            "specificity": 1.0,
+            "f1": 0.5555555555555556,
+            "roc_auc": 0.5824175824175825,
+            "tn": 28,
+            "fp": 0,
+            "fn": 8,
+            "tp": 5
+        }
+    ]
+}

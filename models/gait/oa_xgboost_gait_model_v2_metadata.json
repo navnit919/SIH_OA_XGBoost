@@ -1,0 +1,70 @@
+{
+  "model_type": "XGBClassifier",
+  "task": "binary OA screening",
+  "positive_class": "OA",
+  "negative_classes": [
+    "Y",
+    "OH"
+  ],
+  "feature_set": [
+    "knee_rom",
+    "knee_mean",
+    "knee_std",
+    "knee_max_flex",
+    "knee_min_flex",
+    "knee_median"
+  ],
+  "dataset": "gait_marker_cohort_right_leg.csv",
+  "n_trials": 186,
+  "n_subjects": 27,
+  "oa_subjects": 9,
+  "non_oa_subjects": 18,
+  "validation": "StratifiedGroupKFold, groups=subject",
+  "random_state": 42,
+  "cv_results": {
+    "compact": {
+      "name": "COMPACT",
+      "features": [
+        "knee_rom",
+        "knee_mean",
+        "knee_std",
+        "knee_min_flex"
+      ],
+      "trial_accuracy": 0.6559139784946236,
+      "trial_balanced_accuracy": 0.5619911917789937,
+      "trial_precision": 0.43902439024390244,
+      "trial_recall": 0.3050847457627119,
+      "trial_f1": 0.36,
+      "trial_roc_auc": 0.7554384091819031,
+      "subject_accuracy": 0.6296296296296297,
+      "subject_balanced_accuracy": 0.5277777777777778,
+      "subject_precision": 0.4,
+      "subject_recall": 0.2222222222222222,
+      "subject_f1": 0.2857142857142857,
+      "subject_roc_auc": 0.6790123456790123
+    },
+    "full": {
+      "name": "FULL",
+      "features": [
+        "knee_rom",
+        "knee_mean",
+        "knee_std",
+        "knee_max_flex",
+        "knee_min_flex",
+        "knee_median"
+      ],
+      "trial_accuracy": 0.7204301075268817,
+      "trial_balanced_accuracy": 0.6409982650473776,
+      "trial_precision": 0.5813953488372093,
+      "trial_recall": 0.423728813559322,
+      "trial_f1": 0.49019607843137253,
+      "trial_roc_auc": 0.815027358868277,
+      "subject_accuracy": 0.7407407407407407,
+      "subject_balanced_accuracy": 0.6666666666666666,
+      "subject_precision": 0.6666666666666666,
+      "subject_recall": 0.4444444444444444,
+      "subject_f1": 0.5333333333333333,
+      "subject_roc_auc": 0.8024691358024691
+    }
+  }
+}
