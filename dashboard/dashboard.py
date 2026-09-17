@@ -16,7 +16,7 @@ except ImportError:
 try:
     from questionnaire import questionnaire_module
 except ImportError:
-    def questionnaire_module(): st.warning("questionnaire_module could not be loaded.")
+    def questionnaire_module(): st.warning("questionnaire_module could not be loaded from questionnaire.py.")
 
 try:
     from xray import XRayAnalyzer
@@ -40,11 +40,12 @@ try:
 except ImportError:
     generate_clinical_pdf = None
 
+# Full-width configuration without sidebar
 st.set_page_config(
-    page_title="ARTHRO-AI | Clinical Diagnostic Workstation",
-    page_icon="🩺",
+    page_title="ARTHRO-AI | Precision Osteoarthritis Assessment",
+    page_icon="🦴",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
 # -------------------------------------------------------------
@@ -74,309 +75,509 @@ if "camera_prediction" not in st.session_state:
     st.session_state["camera_prediction"] = 0.65
 
 # -------------------------------------------------------------
-# 2. Multi-Language Master Dictionary
+# 2. Multi-Language Strings (4 Languages)
 # -------------------------------------------------------------
 TEXTS = {
     "English": {
-        "title": "ARTHRO-AI Diagnostic Platform",
-        "subtitle": "Multimodal AI System for Knee Osteoarthritis Screening & Assessment",
-        "desc": "An advanced clinical workstation synthesizing 4 diagnostic dimensions: subject intake, clinical symptoms, deep radiograph classification (DenseNet-121), real-time computer vision gait kinematics (MediaPipe + XGBoost), and wearable inertial sensing (ESP32 + MPU6050).",
-        "start": "🚀 Launch Diagnostic Pipeline",
+        "title": "ARTHRO-AI",
+        "subtitle": "Precision joint care, designed for everyone.",
+        "desc": "Step-by-step multimodal assessment for knee osteoarthritis. Combining patient symptoms, deep radiograph classification, computer vision gait kinematics, and wearable motion sensors.",
+        "start": "🚀 Launch Assessment Pipeline",
         "next": "Proceed to Next Step ➔",
         "back": "⬅ Previous Step",
-        "restart": "🔄 Reset & New Patient",
-        "steps": ["Patient Intake", "Questionnaire", "X-Ray", "Gait", "Sensors", "Final Report"],
-        "pillars": ["Clinical", "Radiographic", "Kinematic", "Wearable IoT"],
-        "report_title": "📊 Step 6: Integrated Multimodal Osteoarthritis Diagnostic Report",
-        "composite_title": "Composite OA Diagnostic Index",
+        "restart": "🔄 New Assessment",
+        "steps": ("Patient Intake", "Questionnaire", "X-Ray Analysis", "Gait Kinematics", "Motion Sensors", "Final Assessment"),
+        "pillars": ("Clinical Symptoms", "X-Ray Radiograph", "Camera Gait", "Wearable Sensors"),
+        "xray_header": "🩻 Knee Radiograph Analysis (DenseNet-121)",
+        "xray_sub": "Upload an AP or lateral view knee X-ray to classify structural Kellgren–Lawrence (KL 0-4) severity.",
+        "xray_upload": "Upload Knee Radiograph (.png, .jpg, .jpeg)",
+        "xray_pred_label": "Predicted Kellgren–Lawrence Grade",
+        "xray_conf_label": "Confidence",
+        "sensors_header": "📡 Wearable Motion Sensing (ESP32 + 3× MPU6050)",
+        "sensors_sub": "6-DOF real-time inertial acceleration and angular velocity stream via serial communication.",
+        "imu1_name": "IMU 1: Thigh Accel (Y)",
+        "imu1_sub": "Axial Impact Load",
+        "imu2_name": "IMU 2: Shank Gyro (Z)",
+        "imu2_sub": "Sagittal Angular Velocity",
+        "imu3_name": "IMU 3: Ankle Shock Absorption",
+        "imu3_sub": "Ground Reaction Shock",
+        "chart_title": "Real-Time 6-DOF Inertial Motion Waveform",
+        "report_header": "📊 Integrated Multimodal Diagnostic Report",
+        "report_sub": "Synthesizes clinical intake, reported symptoms, DenseNet radiograph findings, MediaPipe gait kinematics, and wearable sensor dynamics.",
+        "composite_label": "Composite OA Severity Score",
         "tier_high": "High Risk / Confirmed Osteoarthritis",
-        "tier_mod": "Moderate Risk / Early Mild OA"
+        "tier_mod": "Moderate Risk / Early Mild OA",
+        "tier_low": "Low Risk / Healthy Joint",
+        "breakdown_title": "Dimensional Contribution Breakdown",
+        "item_patient": "Patient Profile",
+        "item_xray": "Radiographic (DenseNet-121)",
+        "item_gait": "Gait Kinematics (XGBoost V5)",
+        "item_womac": "Clinical Symptoms (WOMAC)",
+        "item_imu": "Inertial Sensors (ESP32)",
+        "weight_label": "Weight",
+        "radar_labels": ("Radiograph (KL)", "Vision Gait", "Symptoms", "Inertial Motion"),
+        "download_btn": "📥 Download Official Clinical Report (PDF)",
+        "evaluate_again_btn": "🔄 Evaluate Another Patient"
     },
     "हिन्दी": {
-        "title": "आर्थ्रो-एआई (ARTHRO-AI) क्लिनिकल प्लेटफॉर्म",
-        "subtitle": "घुटने के ऑस्टियोआर्थराइटिस की पहचान के लिए मल्टीमॉडल एआई सिस्टम",
-        "desc": "यह सिस्टम चार मुख्य आयामों को एकीकृत करता है: रोगी पंजीकरण, क्लिनिकल लक्षण, एक्स-रे डीप लर्निंग (DenseNet-121), चाल विश्लेषण (MediaPipe + XGBoost), और वियरेबल सेंसर (ESP32 + MPU6050)।",
+        "title": "आर्थ्रो-एआई (ARTHRO-AI)",
+        "subtitle": "सटीक जोड़ों की देखभाल, सभी के लिए सुगम।",
+        "desc": "घुटने के ऑस्टियोआर्थराइटिस (गठिया) की चरण-दर-चरण जांच। रोगी के लक्षण, एक्स-रे डीप लर्निंग, कैमरे द्वारा चाल विश्लेषण और वियरेबल सेंसर का समग्र समन्वय।",
         "start": "🚀 जांच प्रक्रिया शुरू करें",
         "next": "अगले चरण पर जाएं ➔",
-        "back": "⬅ पिछले चरण पर जाएं",
-        "restart": "🔄 नया मूल्यांकन शुरू करें",
-        "steps": ["रोगी विवरण", "प्रश्नावली", "एक्स-रे", "चाल विश्लेषण", "सेंसर", "समग्र रिपोर्ट"],
-        "pillars": ["क्लिनिकल", "एक्स-रे", "चाल विश्लेषण", "वियरेबल सेंसर"],
-        "report_title": "📊 चरण 6: समग्र मल्टीमॉडल ऑस्टियोआर्थराइटिस रिपोर्ट",
-        "composite_title": "समग्र गठिया सूचकांक (Composite OA Index)",
-        "tier_high": "उच्च जोखिम / पुष्ट ऑस्टियोआर्थराइटिस",
-        "tier_mod": "मध्यम जोखिम / शुरुआती लक्षण"
+        "back": "⬅ पिछला चरण",
+        "restart": "🔄 नया मूल्यांकन",
+        "steps": ("रोगी पंजीकरण", "लक्षण प्रश्नावली", "एक्स-रे जांच", "चाल विश्लेषण", "मोशन सेंसर", "समग्र परिणाम"),
+        "pillars": ("क्लिनिकल लक्षण", "एक्स-रे जांच", "कैमरा चाल", "वियरेबल सेंसर"),
+        "xray_header": "🩻 घुटने का एक्स-रे विश्लेषण (DenseNet-121)",
+        "xray_sub": "केलग्रेन-लॉरेंस (KL ग्रेड 0-4) गंभीरता की जांच के लिए घुटने का एक्स-रे अपलोड करें।",
+        "xray_upload": "घुटने का एक्स-रे अपलोड करें (.png, .jpg, .jpeg)",
+        "xray_pred_label": "अनुमानित केलग्रेन-लॉरेंस (KL) ग्रेड",
+        "xray_conf_label": "विश्वास स्तर (Confidence)",
+        "sensors_header": "📡 वियरेबल इनर्शियल मोशन सेंसर (ESP32 + 3× MPU6050)",
+        "sensors_sub": "चलते समय घुटने पर पड़ने वाले दबाव और गति का 6-DOF रीयल-टाइम डेटा।",
+        "imu1_name": "सेंसर 1: जांघ का त्वरण (Thigh Accel Y)",
+        "imu1_sub": "अक्षीय भार प्रभाव (Axial Load)",
+        "imu2_name": "सेंसर 2: पिंडली का जायरो (Shank Gyro Z)",
+        "imu2_sub": "घुटने की कोणीय गति (Angular Velocity)",
+        "imu3_name": "सेंसर 3: टखने का झटका (Ankle Shock)",
+        "imu3_sub": "जमीन से लगने वाला झटका (Ground Reaction)",
+        "chart_title": "रीयल-टाइम 6-DOF मोशन सेंसर वेवफॉर्म",
+        "report_header": "📊 समग्र मल्टीमॉडल ऑस्टियोआर्थराइटिस निदान रिपोर्ट",
+        "report_sub": "रोगी का विवरण, एक्स-रे विश्लेषण (DenseNet), चाल विश्लेषण (XGBoost), और सेंसर डेटा का संयुक्त मूल्यांकन।",
+        "composite_label": "समग्र गठिया गंभीरता सूचकांक (Composite Score)",
+        "tier_high": "उच्च जोखिम / पुष्ट ऑस्टियोआर्थराइटिस (High Risk / Confirmed OA)",
+        "tier_mod": "मध्यम जोखिम / शुरुआती लक्षण (Moderate Risk / Early OA)",
+        "tier_low": "न्यूनतम जोखिम / सामान्य जोड़ (Low Risk / Normal)",
+        "breakdown_title": "विभिन्न आयामों का विस्तृत योगदान (Breakdown)",
+        "item_patient": "रोगी विवरण (Patient Profile)",
+        "item_xray": "एक्स-रे विश्लेषण (DenseNet-121)",
+        "item_gait": "चाल विश्लेषण (XGBoost Gait)",
+        "item_womac": "लक्षण प्रश्नावली (WOMAC Symptoms)",
+        "item_imu": "वियरेबल सेंसर (ESP32 IMU)",
+        "weight_label": "महत्व (Weight)",
+        "radar_labels": ("एक्स-रे (X-Ray)", "चाल (Gait)", "लक्षण (Symptoms)", "सेंसर (Sensors)"),
+        "download_btn": "📥 आधिकारिक क्लिनिकल रिपोर्ट डाउनलोड करें (PDF)",
+        "evaluate_again_btn": "🔄 नए रोगी का परीक्षण शुरू करें"
     },
     "অসমীয়া": {
-        "title": "আৰ্থ্ৰো-এআই (ARTHRO-AI) ক্লিনিকেল প্লেটফৰ্ম",
-        "subtitle": "অষ্টিঅ'আৰ্থ্ৰাইটিছ (বাতবিষ) চিনাক্তকৰণ আৰু মূল্যায়নৰ বাবে এআই ব্যৱস্থা",
-        "desc": "এই ব্যৱস্থাই চাৰিটা প্ৰধান দিশ একত্ৰিত কৰে: ৰোগীৰ তথ্য, লক্ষণ মূল্যায়ন, এক্স-ৰে' ডিপ লাৰ্নিং (DenseNet-121), চাল-চলন বিশ্লেষণ (MediaPipe + XGBoost), আৰু ৱিয়েৰেবল চেন্সৰ (ESP32 + MPU6050)।",
+        "title": "আৰ্থ্ৰো-এআই (ARTHRO-AI)",
+        "subtitle": "সকলোৰে বাবে সহজ আৰু সঠিক জোৰাৰ চিকিৎসা।",
+        "desc": "আঁঠুৰ বাতবিষৰ স্তৰে স্তৰে কৰা পৰীক্ষা। ৰোগীৰ তথ্য, এক্স-ৰে' ডিটেকচন, কেমেৰাৰে খোজৰ বিশ্লেষণ আৰু ৱিয়েৰেবল চেন্সৰৰ একত্ৰিত প্ৰয়াস।",
         "start": "🚀 পৰীক্ষণ প্ৰক্ৰিয়া আৰম্ভ কৰক",
         "next": "পৰৱৰ্তী স্তৰলৈ যাওক ➔",
         "back": "⬅ পূৰ্ববৰ্তী স্তৰ",
-        "restart": "🔄 নতুন ৰোগী পৰীক্ষা",
-        "steps": ["ৰোগীৰ তথ্য", "প্ৰশ্নাৱলী", "এক্স-ৰে'", "খোজ বিশ্লেষণ", "চেন্সৰ", "চূড়ান্ত ৰিপ'ৰ্ট"],
-        "pillars": ["ক্লিনিকেল", "এক্স-ৰে'", "গতিবিধি", "ৱিয়েৰেবল চেন্সৰ"],
-        "report_title": "📊 স্তৰ ৬: সমগ্ৰ মাল্টিমডেল ৰিপ'ৰ্ট",
-        "composite_title": "বাতবিষৰ সামূহিক সূচকাঙ্ক",
-        "tier_high": "উচ্চ আশংকা / প্ৰমাণিত বাতবিষ",
-        "tier_mod": "মধ্যমীয়া আশংকা / প্ৰাৰম্ভিক লক্ষণ"
+        "restart": "🔄 নতুন মূল্যায়ন",
+        "steps": ("ৰোগীৰ তথ্য", "প্ৰশ্নাৱলী", "এক্স-ৰে' পৰীক্ষা", "খোজ বিশ্লেষণ", "মোচন চেন্সৰ", "চূড়ান্ত ফলাফল"),
+        "pillars": ("লক্ষণ মূল্যায়ন", "এক্স-ৰে' ৰেডিঅ'গ্ৰাফ", "কেমেৰা খোজ", "ৱিয়েৰেবল চেন্সৰ"),
+        "xray_header": "🩻 আঁঠুৰ এক্স-ৰে' বিশ্লেষণ (DenseNet-121)",
+        "xray_sub": "কেলগ্ৰেন-লৰেন্স (KL গ্ৰেড ০-৪) গুৰুত্ব নিৰ্ণয়ৰ বাবে আঁঠুৰ এক্স-ৰে' আপলোড কৰক।",
+        "xray_upload": "আঁঠুৰ এক্স-ৰে' ছবি আপলোড কৰক (.png, .jpg, .jpeg)",
+        "xray_pred_label": "নিৰ্ধাৰিত কেলগ্ৰেন-লৰেন্স (KL) গ্ৰেড",
+        "xray_conf_label": "নিশ্চয়তা (Confidence)",
+        "sensors_header": "📡 ৱিয়েৰেবল মোচন চেন্সৰ (ESP32 + ৩× MPU6050)",
+        "sensors_sub": "খোজ কঢ়াৰ সময়ত আঁঠুত পৰা চাপ আৰু গতিবিধিৰ ৬-DOF ৰিয়েল-টাইম ডাটা।",
+        "imu1_name": "চেন্সৰ ১: উৰুৰ ত্বৰণ (Thigh Accel Y)",
+        "imu1_sub": "ওপৰৰ পৰা পৰা চাপ (Axial Impact)",
+        "imu2_name": "চেন্সৰ ২: ভৰিৰ কোণিক বেগ (Shank Gyro Z)",
+        "imu2_sub": "আঁঠু ভাঁজ হোৱাৰ গতি (Angular Velocity)",
+        "imu3_name": "চেন্সৰ ৩: গোৰোহাৰ কম্পন (Ankle Shock)",
+        "imu3_sub": "মাটিত ভৰি দিয়াৰ সময়ৰ প্ৰভাৱ (Ground Reaction)",
+        "chart_title": "ৰিয়েল-টাইম মোচন চেন্সৰ তৰংগ (Inertial Waveform)",
+        "report_header": "📊 চূড়ান্ত সমন্বিত বাতবিষ মূল্যায়ন ৰিপ'ৰ্ট",
+        "report_sub": "ৰোগীৰ তথ্য, এক্স-ৰে' বিশ্লেষণ (DenseNet), খোজ বিশ্লেষণ (XGBoost), আৰু চেন্সৰ ডাটাৰ সন্মিলিত ফলাফল।",
+        "composite_label": "বাতবিষৰ সামূহিক গুৰুত্ব সূচক (Composite Score)",
+        "tier_high": "উচ্চ আশংকা / প্ৰমাণিত বাতবিষ (High Risk / Confirmed OA)",
+        "tier_mod": "মধ্যমীয়া আশংকা / প্ৰাৰম্ভিক বাতবিষ (Moderate Risk / Early OA)",
+        "tier_low": "নিম্ন আশংকা / সুস্থ জোৰা (Low Risk / Normal)",
+        "breakdown_title": "চাৰিটা প্ৰধান দিশৰ সবিশেষ অৱদান (Breakdown)",
+        "item_patient": "ৰোগীৰ পৰিচয় (Patient Profile)",
+        "item_xray": "এক্স-ৰে' পৰীক্ষা (DenseNet-121)",
+        "item_gait": "খোজৰ গতিবিধি (XGBoost Gait)",
+        "item_womac": "লক্ষণ প্ৰশ্নাৱলী (WOMAC Symptoms)",
+        "item_imu": "ৱিয়েৰেবল চেন্সৰ (ESP32 IMU)",
+        "weight_label": "অংশ (Weight)",
+        "radar_labels": ("এক্স-ৰে' (X-Ray)", "খোজ (Gait)", "লক্ষণ (Symptoms)", "চেন্সৰ (Sensors)"),
+        "download_btn": "📥 অফিচিয়েল ক্লিনিকেল ৰিপ'ৰ্ট ডাউনলোড কৰক (PDF)",
+        "evaluate_again_btn": "🔄 নতুন ৰোগীৰ পৰীক্ষা আৰম্ভ কৰক"
     },
     "বাংলা": {
-        "title": "আর্থ্রো-এআই (ARTHRO-AI) ক্লিনিকাল প্ল্যাটফর্ম",
-        "subtitle": "হাঁটুর অস্টিওআর্থারাইটিস স্ক্রিনিং ও মূল্যায়নের মাল্টিমোডাল এআই সিস্টেম",
-        "desc": "এই উন্নত ওয়ার্কস্টেশনটি চারটি প্রধান মাত্রাকে সংযুক্ত করে: রোগীর তথ্য, ক্লিনিকাল লক্ষণ, এক্স-রে ডিপ লার্নিং (DenseNet-121), চলন বা গেইট বিশ্লেষণ (MediaPipe + XGBoost), এবং পরিধানযোগ্য সেন্সর (ESP32 + MPU6050)।",
-        "start": "🚀 ডায়াগনস্টিক পাইপলাইন শুরু করুন",
+        "title": "আর্থ্রো-এআই (ARTHRO-AI)",
+        "subtitle": "হাঁটুর বাতজনিত সঠিক মূল্যায়ন, সবার জন্য সহজ।",
+        "desc": "হাঁটুর অস্টিওআর্থারাইটিসের ধাপে ধাপে সমন্বিত মূল্যায়ন। রোগীর লক্ষণ, এক্স-রে ডিপ লার্নিং, ক্যামেরার সাহায্যে হাঁটার ভঙ্গি বিশ্লেষণ এবং পরিধানযোগ্য সেন্সর ডেটার একীভূত প্ল্যাটফর্ম।",
+        "start": "🚀 মূল্যায়ন শুরু করুন",
         "next": "পরবর্তী ধাপে যান ➔",
         "back": "⬅ পূর্ববর্তী ধাপ",
-        "restart": "🔄 নতুন মূল্যায়ন শুরু করুন",
-        "steps": ["রোগীর তথ্য", "প্রশ্নাবলী", "এক্স-রে", "চলন বিশ্লেষণ", "সেন্সর", "চূড়ান্ত রিপোর্ট"],
-        "pillars": ["ক্লিনিকাল", "রেডিওগ্রাফিক", "চলনভঙ্গি", "পরিধানযোগ্য সেন্সর"],
-        "report_title": "📊 ধাপ ৬: সমন্বিত মাল্টিমোডাল ক্লিনিকাল রিপোর্ট",
-        "composite_title": "সামগ্রিক বাতজনিত স্কোর (Composite Index)",
-        "tier_high": "উচ্চ ঝুঁকি / নিশ্চিত অস্টিওআর্থারাইটিস",
-        "tier_mod": "মাঝারি ঝুঁকি / প্রাথমিক স্তর"
+        "restart": "🔄 নতুন মূল্যায়ন",
+        "steps": ("রোগীর বিবরণ", "লক্ষণ প্রশ্নাবলী", "এক্স-রে বিশ্লেষণ", "চলনভঙ্গি বিশ্লেষণ", "মোশন সেন্সর", "চূড়ান্ত মূল্যায়ন"),
+        "pillars": ("ক্লিনিকাল লক্ষণ", "এক্স-রে চিত্র", "ক্যামেরা চলন", "পরিধানযোগ্য সেন্সর"),
+        "xray_header": "🩻 হাঁটুর এক্স-রে বিশ্লেষণ (DenseNet-121)",
+        "xray_sub": "কেলগ্রেন-লরেন্স (KL গ্রেড ০-৪) তীব্রতা নির্ধারণের জন্য হাঁটুর এক্স-রে আপলোড করুন।",
+        "xray_upload": "হাঁটুর এক্স-রে চিত্র আপলোড করুন (.png, .jpg, .jpeg)",
+        "xray_pred_label": "নির্ধারিত কেলগ্রেন-লরেন্স (KL) গ্রেড",
+        "xray_conf_label": "নির্ভুলতার মাত্রা (Confidence)",
+        "sensors_header": "📡 পরিধানযোগ্য মোশন সেন্সর (ESP32 + ৩টি MPU6050)",
+        "sensors_sub": "হাঁটার সময় হাঁটুর লোড এবং গতিবিধির ৬-DOF রিয়েল-টাইম ডেটা।",
+        "imu1_name": "সেন্সর ১: উরুর ত্বরণ (Thigh Accel Y)",
+        "imu1_sub": "উল্লম্ব লোড প্রভাব (Axial Impact)",
+        "imu2_name": "সেন্সর ২: পায়ের নিম্নভাগের জাইরো (Shank Gyro Z)",
+        "imu2_sub": "সন্ধির ঘূর্ণন গতি (Angular Velocity)",
+        "imu3_name": "সেন্সর ৩: গোড়ালির কম্পন শোষণ (Ankle Shock)",
+        "imu3_sub": "মাটিতে পা ফেলার প্রতিক্রিয়া (Ground Reaction)",
+        "chart_title": "রিয়েল-টাইম মোশন সেন্সর তরঙ্গ (Inertial Waveform)",
+        "report_header": "📊 সমন্বিত মাল্টিমোডাল ডায়াগনস্টিক রিপোর্ট",
+        "report_sub": "রোগীর তথ্য, এক্স-রে ডিপ লার্নিং (DenseNet), চলন বিশ্লেষণ (XGBoost), এবং সেন্সর ডেটার সামগ্রিক মূল্যায়ন।",
+        "composite_label": "সামগ্রিক বাতজনিত তীব্রতার সূচক (Composite Score)",
+        "tier_high": "উচ্চ ঝুঁকি / নিশ্চিত অস্টিওআর্থারাইটিস (High Risk / Confirmed OA)",
+        "tier_mod": "মাঝারি ঝুঁকি / প্রাথমিক স্তর (Moderate Risk / Early OA)",
+        "tier_low": "কম ঝুঁকি / স্বাভাবিক সন্ধি (Low Risk / Normal)",
+        "breakdown_title": "বিভিন্ন ক্লিনিকাল উৎসের অবদান (Breakdown)",
+        "item_patient": "রোগীর বিবরণ (Patient Profile)",
+        "item_xray": "এক্স-রে বিশ্লেষণ (DenseNet-121)",
+        "item_gait": "চলনভঙ্গি বিশ্লেষণ (XGBoost Gait)",
+        "item_womac": "লক্ষণ প্রশ্নাবলী (WOMAC Symptoms)",
+        "item_imu": "পরিধানযোগ্য সেন্সর (ESP32 IMU)",
+        "weight_label": "গুরুত্ব (Weight)",
+        "radar_labels": ("এক্স-রে (X-Ray)", "চলন (Gait)", "লক্ষণ (Symptoms)", "সেন্সর (Sensors)"),
+        "download_btn": "📥 অফিশিয়াল ক্লিনিকাল রিপোর্ট ডাউনলোড করুন (PDF)",
+        "evaluate_again_btn": "🔄 নতুন রোগী মূল্যায়ন শুরু করুন"
     }
 }
 
 lang = st.session_state["language"]
 t = TEXTS[lang]
+s_intake, s_quest, s_xray, s_gait, s_sensors, s_report = t["steps"]
+pil_clin, pil_xray, pil_gait, pil_imu = t["pillars"]
 
 # -------------------------------------------------------------
-# 3. High-End Medical CSS & Animations
+# 3. Rich Clinical Light Theme CSS with Advanced Animations
 # -------------------------------------------------------------
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
     * { font-family: 'Plus Jakarta Sans', sans-serif; }
 
+    /* Hide sidebar */
+    [data-testid="stSidebar"] { display: none; }
+    [data-testid="stSidebarCollapsedControl"] { display: none; }
+
     .stApp {
-        background: radial-gradient(circle at 10% 20%, rgba(14, 165, 233, 0.05) 0%, transparent 40%),
-                    radial-gradient(circle at 90% 80%, rgba(99, 102, 241, 0.05) 0%, transparent 40%),
-                    #080C14;
+        background-color: #FBF9F5;
+        color: #1E1B4B;
     }
 
-    @keyframes ecg-pulse {
-        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-        70% { transform: scale(1.05); box-shadow: 0 0 0 9px rgba(16, 185, 129, 0); }
-        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    /* Screen width container */
+    .block-container {
+        max-width: 95% !important;
+        padding-left: 2.2rem !important;
+        padding-right: 2.2rem !important;
+        padding-top: 2.2rem !important;
+        padding-bottom: 2.5rem !important;
     }
-    
-    @keyframes shimmer {
+
+    /* Entry Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(14px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .hero-box, .feature-card, .stepper-progress {
+        animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    /* Shimmer Effect on Hero Banner */
+    @keyframes shimmerSweep {
         0% { background-position: -200% 0; }
         100% { background-position: 200% 0; }
     }
 
+    .hero-box {
+        background: linear-gradient(135deg, #EEECFB 0%, #F5F3FF 100%);
+        border-radius: 28px;
+        padding: 44px 50px;
+        margin-bottom: 28px;
+        border: 1px solid #DFDBF8;
+        position: relative;
+        overflow: hidden;
+    }
+    .hero-box::after {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; height: 3px;
+        background: linear-gradient(90deg, transparent, #5B51D8, #10B981, transparent);
+        animation: shimmerSweep 4s infinite linear;
+        background-size: 200% 100%;
+    }
+
+    .hero-title {
+        font-size: 3.2rem;
+        font-weight: 800;
+        color: #5B51D8;
+        letter-spacing: -0.03em;
+        margin-bottom: 6px;
+    }
+    .hero-tagline {
+        font-size: 2.1rem;
+        font-weight: 800;
+        color: #1E1B4B;
+        line-height: 1.25;
+        margin-bottom: 14px;
+        max-width: 850px;
+    }
+    .hero-body {
+        font-size: 1.15rem;
+        color: #475569;
+        line-height: 1.65;
+        max-width: 1000px;
+        margin-bottom: 0;
+    }
+
+    /* Floating Feature Cards */
+    .feature-card {
+        background: #FFFFFF;
+        border-radius: 24px;
+        padding: 32px 28px;
+        box-shadow: 0 8px 24px rgba(91, 81, 216, 0.05);
+        border: 1.5px solid #EAE7FB;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        height: 100%;
+    }
+    .feature-card:hover {
+        transform: translateY(-8px) scale(1.01);
+        box-shadow: 0 20px 40px rgba(91, 81, 216, 0.14);
+        border-color: #5B51D8;
+    }
+
+    /* Stepper with Glowing Active Aura */
+    .stepper-progress {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #FFFFFF;
+        border-radius: 50px;
+        padding: 12px 28px;
+        margin-bottom: 28px;
+        border: 1px solid #EAE7FB;
+        box-shadow: 0 4px 16px rgba(91, 81, 216, 0.05);
+        overflow-x: auto;
+    }
+    .step-item {
+        font-weight: 700;
+        font-size: 0.90rem;
+        color: #64748B;
+        padding: 6px 16px;
+        border-radius: 30px;
+        white-space: nowrap;
+        transition: all 0.25s ease;
+    }
+    .step-active {
+        color: #FFFFFF !important;
+        background: #5B51D8 !important;
+        box-shadow: 0 4px 14px rgba(91, 81, 216, 0.35);
+        animation: stepPulse 2.4s infinite ease-in-out;
+    }
+    .step-done {
+        color: #059669 !important;
+        background: #DCFCE7 !important;
+    }
+
+    @keyframes stepPulse {
+        0% { box-shadow: 0 0 0 0 rgba(91, 81, 216, 0.4); }
+        70% { box-shadow: 0 0 0 8px rgba(91, 81, 216, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(91, 81, 216, 0); }
+    }
+
+    /* Primary Action Buttons with Breathing Pulse */
+    @keyframes pulseGlow {
+        0% { box-shadow: 0 6px 18px rgba(16, 185, 129, 0.28); }
+        50% { box-shadow: 0 10px 28px rgba(16, 185, 129, 0.55); }
+        100% { box-shadow: 0 6px 18px rgba(16, 185, 129, 0.28); }
+    }
+
+    div.stButton > button:first-child {
+        border-radius: 50px !important;
+        font-weight: 800 !important;
+        font-size: 1.12rem !important;
+        padding: 14px 40px !important;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        border: none !important;
+        background: #10B981 !important;
+        color: #FFFFFF !important;
+        animation: pulseGlow 2.8s infinite ease-in-out !important;
+    }
+    div.stButton > button:first-child:hover {
+        transform: translateY(-3px) scale(1.01) !important;
+        box-shadow: 0 14px 32px rgba(16, 185, 129, 0.45) !important;
+        background: #059669 !important;
+    }
+
+    /* Popover button custom styling (pill button) */
+    div[data-testid="stPopover"] {
+        margin-top: 6px !important;
+        overflow: visible !important;
+    }
+    div[data-testid="stPopover"] > button {
+        border-radius: 40px !important;
+        border: 1.5px solid #DFDBF8 !important;
+        background-color: #FFFFFF !important;
+        color: #5B51D8 !important;
+        font-weight: 700 !important;
+        font-size: 0.95rem !important;
+        padding: 10px 22px !important;
+        min-height: 44px !important;
+        box-shadow: 0 4px 12px rgba(91, 81, 216, 0.08) !important;
+        transition: all 0.2s ease !important;
+    }
+    div[data-testid="stPopover"] > button:hover {
+        background-color: #EEECFB !important;
+        border-color: #5B51D8 !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 16px rgba(91, 81, 216, 0.14) !important;
+    }
+
+    /* Live Telemetry Pulse Badge */
+    @keyframes live-pulse {
+        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+        70% { transform: scale(1.05); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
     .badge-live {
         display: inline-block;
         width: 9px;
         height: 9px;
         background-color: #10B981;
         border-radius: 50%;
-        animation: ecg-pulse 1.8s infinite;
-        margin-right: 8px;
-    }
-
-    .hero-card {
-        background: linear-gradient(135deg, rgba(15, 23, 42, 0.92) 0%, rgba(30, 41, 59, 0.75) 100%);
-        border: 1px solid rgba(56, 189, 248, 0.25);
-        border-radius: 18px;
-        padding: 30px;
-        margin-bottom: 25px;
-        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .hero-card::after {
-        content: '';
-        position: absolute;
-        top: 0; left: 0; right: 0; height: 2px;
-        background: linear-gradient(90deg, transparent, #38BDF8, #818CF8, transparent);
-        animation: shimmer 3s infinite linear;
-        background-size: 200% 100%;
-    }
-
-    .metric-card {
-        background: rgba(18, 26, 43, 0.75);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 14px;
-        padding: 20px 24px;
-        margin-bottom: 16px;
-        backdrop-filter: blur(16px);
-        transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
-    }
-    .metric-card:hover {
-        transform: translateY(-3px);
-        border-color: rgba(56, 189, 248, 0.4);
-        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
-    }
-    
-    .card-title {
-        color: #94A3B8;
-        font-size: 0.8rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-    }
-    .card-val {
-        color: #F8FAFC;
-        font-size: 2.0rem;
-        font-weight: 800;
-        margin: 4px 0;
-        letter-spacing: -0.02em;
-    }
-
-    .stepper-box {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: rgba(15, 23, 42, 0.9);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 14px;
-        padding: 14px 24px;
-        margin-bottom: 25px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-        overflow-x: auto;
-    }
-    .step-item {
-        font-weight: 600;
-        font-size: 0.84rem;
-        color: #64748B;
-        padding: 6px 12px;
-        border-radius: 8px;
-        transition: all 0.3s ease;
-        white-space: nowrap;
-    }
-    .step-active {
-        color: #38BDF8 !important;
-        background: rgba(56, 189, 248, 0.12);
-        border: 1px solid rgba(56, 189, 248, 0.3);
-        box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
-    }
-    .step-completed {
-        color: #10B981 !important;
+        animation: live-pulse 2s infinite;
+        margin-right: 6px;
     }
 </style>
 """, unsafe_allow_html=True)
 
 # -------------------------------------------------------------
-# 4. Sidebar Controls & Patient Profile
+# 4. Clean Top Header: Properly Positioned Language Popover
 # -------------------------------------------------------------
-p_curr = st.session_state["patient_data"]
+top_col1, top_col2 = st.columns((3.5, 1.2))
 
-with st.sidebar:
-    st.markdown("### 🩺 **ARTHRO-AI**")
-    st.caption("Clinical Multimodal Workstation")
-    st.divider()
-
-    st.markdown("#### 🌐 Language / ভাষা / भाषा")
-    lang_options = ["English", "हिन्दी", "অসমীয়া", "বাংলা"]
-    curr_idx = lang_options.index(lang) if lang in lang_options else 0
-    selected_lang = st.selectbox("", lang_options, index=curr_idx)
-    if selected_lang != st.session_state["language"]:
-        st.session_state["language"] = selected_lang
-        st.rerun()
-
-    st.divider()
-    st.markdown("#### 👤 Current Subject")
-    st.markdown(f"""
-    <div style="background: rgba(30, 41, 59, 0.5); padding: 12px 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.06); font-size: 0.88rem;">
-        <b>Name:</b> <span style="color: #38BDF8;">{p_curr.get('name', 'N/A')}</span><br>
-        <b>MRN:</b> <code>{p_curr.get('id', 'N/A')}</code><br>
-        <b>Age / Sex:</b> {p_curr.get('age', 58)}y / {p_curr.get('gender', 'Male')}<br>
-        <b>Target Joint:</b> {p_curr.get('joint', 'Right Knee')}<br>
-        <b>BMI:</b> {p_curr.get('bmi', 25.6):.1f} kg/m²
+with top_col1:
+    st.markdown("""
+    <div style="display: flex; align-items: center; gap: 14px; margin-top: 2px;">
+        <span style="font-size: 2.5rem;">🦴</span>
+        <div>
+            <h1 style="color: #5B51D8; font-weight: 800; margin: 0; font-size: 2.1rem; letter-spacing: -0.02em; line-height: 1.1;">ARTHRO-AI</h1>
+            <span style="color: #64748B; font-size: 0.95rem; font-weight: 600;">Clinical Multimodal Workstation</span>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
-    st.divider()
-    st.markdown("#### 🟢 Active Diagnostic Engines")
-    st.markdown('<div><span class="badge-live"></span><b>DenseNet-121:</b> Active (KL 0-4)</div>', unsafe_allow_html=True)
-    st.markdown('<div><span class="badge-live"></span><b>MediaPipe Tasks:</b> 40 Bilateral Frames</div>', unsafe_allow_html=True)
-    st.markdown('<div><span class="badge-live"></span><b>XGBoost Model:</b> 6-Feature Kinematics</div>', unsafe_allow_html=True)
-    st.markdown('<div><span class="badge-live"></span><b>ESP32 IMU:</b> CSV Stream Active</div>', unsafe_allow_html=True)
+with top_col2:
+    st.markdown("<div style='height: 26px;'></div>", unsafe_allow_html=True)
+    
+    if hasattr(st, "popover"):
+        with st.popover(f"🌐 {lang} ▾", use_container_width=True):
+            st.markdown("<p style='font-weight: 700; color: #5B51D8; margin-bottom: 8px; font-size: 0.9rem;'>Select Language / ভাষা</p>", unsafe_allow_html=True)
+            for l_name in ("English", "हिन्दी", "অসমীয়া", "বাংলা"):
+                is_active = (l_name == lang)
+                label_txt = f"✓ {l_name}" if is_active else l_name
+                if st.button(label_txt, key=f"lang_opt_{l_name}", use_container_width=True):
+                    if l_name != st.session_state["language"]:
+                        st.session_state["language"] = l_name
+                        st.rerun()
+    else:
+        with st.expander(f"🌐 {lang} ▾"):
+            for l_name in ("English", "हिन्दी", "অসমীয়া", "বাংলা"):
+                if st.button(l_name, key=f"lang_opt_exp_{l_name}", use_container_width=True):
+                    st.session_state["language"] = l_name
+                    st.rerun()
 
-    if st.session_state["current_step"] > 0:
-        st.divider()
-        if st.button(t["restart"], use_container_width=True):
-            st.session_state["current_step"] = 0
-            st.rerun()
+# System Engine Status Ribbon
+st.markdown("""
+<div style="background: #F1F0FB; border-radius: 14px; padding: 10px 22px; margin: 12px 0 24px 0; display: flex; align-items: center; justify-content: space-between; font-size: 0.88rem; color: #475569; border: 1px solid #E4E1F8;">
+    <div>
+        <span class="badge-live"></span><b>DenseNet-121:</b> Active (KL 0-4) &nbsp;&nbsp;|&nbsp;&nbsp;
+        <span class="badge-live"></span><b>MediaPipe Tasks:</b> 40-Frame Bilateral &nbsp;&nbsp;|&nbsp;&nbsp;
+        <span class="badge-live"></span><b>XGBoost V5:</b> Kinematic Engine &nbsp;&nbsp;|&nbsp;&nbsp;
+        <span class="badge-live"></span><b>ESP32 IMU:</b> CSV Stream Active
+    </div>
+    <div>
+        <span style="color: #5B51D8; font-weight: 700;">Node: NITN-CPS-2026</span>
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
-# -------------------------------------------------------------
-# 5. Connected Stepper Header (Steps 1 to 6)
-# -------------------------------------------------------------
 step = st.session_state["current_step"]
-st_labels = t["steps"]
 
+# Visual Stepper Indicator (Visible during active assessment steps 1-6)
 if step > 0:
     st.markdown(f"""
-    <div class="stepper-box">
-        <span class="step-item {'step-completed' if step>1 else ''} {'step-active' if step==1 else ''}">{'✓' if step>1 else '1.'} {st_labels[0]}</span>
-        <span style="color: #475569;">›</span>
-        <span class="step-item {'step-completed' if step>2 else ''} {'step-active' if step==2 else ''}">{'✓' if step>2 else '2.'} {st_labels[1]}</span>
-        <span style="color: #475569;">›</span>
-        <span class="step-item {'step-completed' if step>3 else ''} {'step-active' if step==3 else ''}">{'✓' if step>3 else '3.'} {st_labels[2]}</span>
-        <span style="color: #475569;">›</span>
-        <span class="step-item {'step-completed' if step>4 else ''} {'step-active' if step==4 else ''}">{'✓' if step>4 else '4.'} {st_labels[3]}</span>
-        <span style="color: #475569;">›</span>
-        <span class="step-item {'step-completed' if step>5 else ''} {'step-active' if step==5 else ''}">{'✓' if step>5 else '5.'} {st_labels[4]}</span>
-        <span style="color: #475569;">›</span>
-        <span class="step-item {'step-active' if step==6 else ''}">6. {st_labels[5]}</span>
+    <div class="stepper-progress">
+        <span class="step-item {'step-done' if step>1 else ''} {'step-active' if step==1 else ''}">{'✓' if step>1 else '1.'} {s_intake}</span>
+        <span style="color: #CBD5E1; font-weight: 700;">›</span>
+        <span class="step-item {'step-done' if step>2 else ''} {'step-active' if step==2 else ''}">{'✓' if step>2 else '2.'} {s_quest}</span>
+        <span style="color: #CBD5E1; font-weight: 700;">›</span>
+        <span class="step-item {'step-done' if step>3 else ''} {'step-active' if step==3 else ''}">{'✓' if step>3 else '3.'} {s_xray}</span>
+        <span style="color: #CBD5E1; font-weight: 700;">›</span>
+        <span class="step-item {'step-done' if step>4 else ''} {'step-active' if step==4 else ''}">{'✓' if step>4 else '4.'} {s_gait}</span>
+        <span style="color: #CBD5E1; font-weight: 700;">›</span>
+        <span class="step-item {'step-done' if step>5 else ''} {'step-active' if step==5 else ''}">{'✓' if step>5 else '5.'} {s_sensors}</span>
+        <span style="color: #CBD5E1; font-weight: 700;">›</span>
+        <span class="step-item {'step-active' if step==6 else ''}">6. {s_report}</span>
     </div>
     """, unsafe_allow_html=True)
 
 # =============================================================
-# STEP 0: LANDING & SYSTEM OVERVIEW
+# STEP 0: HOMEPAGE OVERVIEW
 # =============================================================
 if step == 0:
     st.markdown(f"""
-    <div class="hero-card">
-        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-            <span style="font-size: 2rem;">🩺</span>
-            <h1 style="color: #F8FAFC; margin: 0; font-size: 2.2rem; font-weight: 800;">{t["title"]}</h1>
-        </div>
-        <p style="color: #38BDF8; font-size: 1.15rem; font-weight: 600; margin-bottom: 16px;">{t["subtitle"]}</p>
-        <p style="color: #94A3B8; font-size: 0.96rem; line-height: 1.65; max-width: 950px; margin-bottom: 0;">{t["desc"]}</p>
+    <div class="hero-box">
+        <div class="hero-title">{t['title']}</div>
+        <div class="hero-tagline">{t['subtitle']}</div>
+        <div class="hero-body">{t['desc']}</div>
     </div>
     """, unsafe_allow_html=True)
 
-    c1, c2, c3, c4 = st.columns(4)
-    with c1:
+    col1, col2, col3, col4 = st.columns(4, gap="large")
+    with col1:
         st.markdown(f"""
-        <div class="metric-card">
-            <div class="card-title">Pillar 1: {t['pillars'][0]}</div>
-            <div class="card-val" style="color: #38BDF8;">Intake & Symptoms</div>
-            <div style="color: #94A3B8; font-size: 0.82rem; line-height: 1.5;">Subject profile, BMI, pain levels, and WOMAC functional limitations.</div>
+        <div class="feature-card">
+            <span style="background: #E0E7FF; color: #4338CA; padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Pillar 1</span>
+            <h3 style="color: #1E1B4B; font-size: 1.4rem; font-weight: 800; margin: 14px 0 10px 0;">{pil_clin}</h3>
+            <p style="color: #64748B; font-size: 0.96rem; line-height: 1.55;">Patient profile, calculated BMI, pain levels, and WOMAC functional limitations.</p>
         </div>
         """, unsafe_allow_html=True)
-    with c2:
+    with col2:
         st.markdown(f"""
-        <div class="metric-card">
-            <div class="card-title">Pillar 2: {t['pillars'][1]}</div>
-            <div class="card-val" style="color: #10B981;">DenseNet-121</div>
-            <div style="color: #94A3B8; font-size: 0.82rem; line-height: 1.5;">Kellgren–Lawrence (KL) Grades 0–4 structural joint space classification.</div>
+        <div class="feature-card">
+            <span style="background: #DCFCE7; color: #15803D; padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Pillar 2</span>
+            <h3 style="color: #1E1B4B; font-size: 1.4rem; font-weight: 800; margin: 14px 0 10px 0;">{pil_xray}</h3>
+            <p style="color: #64748B; font-size: 0.96rem; line-height: 1.55;">DenseNet-121 neural evaluation of Kellgren–Lawrence (KL) Grades 0 to 4.</p>
         </div>
         """, unsafe_allow_html=True)
-    with c3:
+    with col3:
         st.markdown(f"""
-        <div class="metric-card">
-            <div class="card-title">Pillar 3: {t['pillars'][2]}</div>
-            <div class="card-val" style="color: #F59E0B;">XGBoost Gait</div>
-            <div style="color: #94A3B8; font-size: 0.82rem; line-height: 1.5;">MediaPipe skeletal pose tracking for bilateral knee flexion and asymmetry.</div>
+        <div class="feature-card">
+            <span style="background: #FEF3C7; color: #B45309; padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Pillar 3</span>
+            <h3 style="color: #1E1B4B; font-size: 1.4rem; font-weight: 800; margin: 14px 0 10px 0;">{pil_gait}</h3>
+            <p style="color: #64748B; font-size: 0.96rem; line-height: 1.55;">MediaPipe skeletal tracking for bilateral knee flexion and asymmetry.</p>
         </div>
         """, unsafe_allow_html=True)
-    with c4:
+    with col4:
         st.markdown(f"""
-        <div class="metric-card">
-            <div class="card-title">Pillar 4: {t['pillars'][3]}</div>
-            <div class="card-val" style="color: #818CF8;">ESP32 IMU</div>
-            <div style="color: #94A3B8; font-size: 0.82rem; line-height: 1.5;">6-DOF real-time acceleration and angular rotation tracking via 3× MPU6050.</div>
+        <div class="feature-card">
+            <span style="background: #F3E8FF; color: #7E22CE; padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Pillar 4</span>
+            <h3 style="color: #1E1B4B; font-size: 1.4rem; font-weight: 800; margin: 14px 0 10px 0;">{pil_imu}</h3>
+            <p style="color: #64748B; font-size: 0.96rem; line-height: 1.55;">6-DOF real-time acceleration and rotational impact via 3× MPU6050 sensors.</p>
         </div>
         """, unsafe_allow_html=True)
 
-    st.markdown("<br>", unsafe_allow_html=True)
-    col_btn, _ = st.columns([1, 2])
+    st.markdown("<br><br>", unsafe_allow_html=True)
+    col_btn, _ = st.columns((1, 2))
     with col_btn:
         if st.button(t["start"], type="primary", use_container_width=True):
             st.session_state["current_step"] = 1
@@ -388,7 +589,7 @@ if step == 0:
 elif step == 1:
     patient_module()
     st.markdown("<br>", unsafe_allow_html=True)
-    b1, b2 = st.columns([1, 1])
+    b1, b2 = st.columns(2)
     with b1:
         if st.button(t["back"]):
             st.session_state["current_step"] = 0
@@ -404,7 +605,7 @@ elif step == 1:
 elif step == 2:
     questionnaire_module()
     st.markdown("<br>", unsafe_allow_html=True)
-    b1, b2 = st.columns([1, 1])
+    b1, b2 = st.columns(2)
     with b1:
         if st.button(t["back"]):
             st.session_state["current_step"] = 1
@@ -420,26 +621,36 @@ elif step == 2:
 elif step == 3:
     if XRayAnalyzer:
         analyzer = XRayAnalyzer()
-        st.subheader("🩻 Step 3: Knee Radiograph Analysis (DenseNet-121)")
-        cx1, cx2 = st.columns([1, 1])
+        st.markdown(f"<h2 style='font-size: 2.2rem; font-weight: 800; color: #1E1B4B; margin-bottom: 4px;'>{t['xray_header']}</h2>", unsafe_allow_html=True)
+        st.markdown(f"<p style='color: #64748B; font-size: 1.05rem; margin-bottom: 25px;'>{t['xray_sub']}</p>", unsafe_allow_html=True)
+        
+        cx1, cx2 = st.columns(2, gap="large")
         with cx1:
-            up_x = st.file_uploader("Upload Knee AP/Lateral X-ray Image", type=["png", "jpg", "jpeg"])
-            if up_x: st.image(up_x, caption="Patient Radiograph", use_container_width=True)
+            st.markdown("""
+            <div style="background: #FFFFFF; border-radius: 20px; padding: 25px; box-shadow: 0 10px 25px rgba(91, 81, 216, 0.06); border: 1px solid #EAE7FB;">
+            """, unsafe_allow_html=True)
+            up_x = st.file_uploader(t["xray_upload"], type=["png", "jpg", "jpeg"])
+            if up_x: st.image(up_x, caption="Patient Knee Radiograph", use_container_width=True)
+            st.markdown("</div>", unsafe_allow_html=True)
         with cx2:
             if up_x:
                 res = analyzer.predict(up_x)
                 st.session_state["kl_grade"] = res["predicted_grade"]
                 st.session_state["xray_conf"] = res["confidence"]
+                
                 st.markdown(f"""
-                <div class="metric-card" style="border-left: 4px solid {res['color']};">
-                    <div class="card-title">Predicted Kellgren–Lawrence Grade</div>
-                    <div class="card-val" style="color: {res['color']};">{res['title']}</div>
-                    <div style="color: #94A3B8; font-size: 0.85rem;">Confidence: <b>{res['confidence']*100:.1f}%</b> | {res['description']}</div>
+                <div style="background: #FFFFFF; border-radius: 20px; padding: 25px; box-shadow: 0 10px 25px rgba(91, 81, 216, 0.06); border: 1.5px solid {res['color']}; margin-bottom: 20px;">
+                    <span style="color: #64748B; font-size: 0.85rem; font-weight: 700; text-transform: uppercase;">{t['xray_pred_label']}</span>
+                    <h2 style="color: {res['color']}; font-size: 2.2rem; font-weight: 800; margin: 6px 0;">{res['title']}</h2>
+                    <p style="color: #334155; font-size: 0.95rem; margin-bottom: 12px;">{res['description']}</p>
+                    <span style="background: {res['bg']}; color: {res['color']}; font-weight: 700; font-size: 0.9rem; padding: 6px 14px; border-radius: 30px;">
+                        {t['xray_conf_label']}: {res['confidence']*100:.1f}%
+                    </span>
                 </div>
                 """, unsafe_allow_html=True)
                 st.bar_chart(pd.DataFrame({"Probability": res["probabilities"]}, index=[f"Grade {i}" for i in range(5)]))
     st.markdown("<br>", unsafe_allow_html=True)
-    b1, b2 = st.columns([1, 1])
+    b1, b2 = st.columns(2)
     with b1:
         if st.button(t["back"]):
             st.session_state["current_step"] = 2
@@ -454,28 +665,31 @@ elif step == 3:
 # =============================================================
 elif step == 4:
     gait_t = GAIT_STRINGS.get(lang, GAIT_STRINGS.get("English", {}))
-    pts = gait_t.get("points", [])
+    pts = list(gait_t.get("points", []))
+    half_pt = len(pts) // 2
+    setup_pts = pts[:half_pt]
+    walk_pts = pts[half_pt:]
     
     st.markdown(f"""
-    <div style="background: rgba(15, 23, 42, 0.95); border: 1.5px solid #38BDF8; border-radius: 14px; padding: 22px; margin-bottom: 25px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);">
-        <h3 style="color: #38BDF8; margin-top: 0; margin-bottom: 15px; font-size: 1.25rem;">
-            {gait_t.get('proto_title', '📋 Gait Analysis Instructions')}
+    <div style="background: #FFFFFF; border-radius: 24px; padding: 30px; box-shadow: 0 10px 30px rgba(91, 81, 216, 0.06); border: 1.5px solid #5B51D8; margin-bottom: 30px;">
+        <h3 style="color: #5B51D8; font-size: 1.5rem; font-weight: 800; margin-top: 0; margin-bottom: 18px;">
+            {gait_t.get('proto_title', '📋 Gait Protocol Checklist')}
         </h3>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
-            <div>
-                <p style="color: #F8FAFC; font-weight: 700; font-size: 0.95rem; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+            <div style="background: #FBF9F5; border-radius: 16px; padding: 20px; border: 1px solid #EAE7FB;">
+                <p style="color: #1E1B4B; font-weight: 800; font-size: 1.05rem; margin-top: 0; margin-bottom: 10px;">
                     {gait_t.get('setup_title', 'Setup')}
                 </p>
-                <ul style="color: #E2E8F0; font-size: 0.9rem; line-height: 1.8; margin: 0; padding-left: 20px;">
-                    {''.join([f"<li><b>{p}</b></li>" for p in pts[:6]])}
+                <ul style="color: #475569; font-size: 0.95rem; line-height: 1.8; margin: 0; padding-left: 20px;">
+                    {''.join([f"<li><b>{p}</b></li>" for p in setup_pts])}
                 </ul>
             </div>
-            <div>
-                <p style="color: #F8FAFC; font-weight: 700; font-size: 0.95rem; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px;">
+            <div style="background: #FBF9F5; border-radius: 16px; padding: 20px; border: 1px solid #EAE7FB;">
+                <p style="color: #1E1B4B; font-weight: 800; font-size: 1.05rem; margin-top: 0; margin-bottom: 10px;">
                     {gait_t.get('walk_title', 'Protocol')}
                 </p>
-                <ul style="color: #E2E8F0; font-size: 0.9rem; line-height: 1.8; margin: 0; padding-left: 20px;">
-                    {''.join([f"<li><b>{p}</b></li>" for p in pts[6:]])}
+                <ul style="color: #475569; font-size: 0.95rem; line-height: 1.8; margin: 0; padding-left: 20px;">
+                    {''.join([f"<li><b>{p}</b></li>" for p in walk_pts])}
                 </ul>
             </div>
         </div>
@@ -485,7 +699,7 @@ elif step == 4:
     gait_module()
 
     st.markdown("<br>", unsafe_allow_html=True)
-    b1, b2 = st.columns([1, 1])
+    b1, b2 = st.columns(2)
     with b1:
         if st.button(t["back"]):
             st.session_state["current_step"] = 3
@@ -499,9 +713,8 @@ elif step == 4:
 # STEP 5: SENSORS (ESP32)
 # =============================================================
 elif step == 5:
-    hw_t = HW_STRINGS.get(lang, HW_STRINGS.get("English", {}))
-    st.subheader(hw_t.get("title", "📡 Step 5: Wearable Sensors"))
-    st.caption(hw_t.get("caption", "6-DOF IMU Stream"))
+    st.markdown(f"<h2 style='font-size: 2.2rem; font-weight: 800; color: #1E1B4B; margin-bottom: 4px;'>{t['sensors_header']}</h2>", unsafe_allow_html=True)
+    st.markdown(f"<p style='color: #64748B; font-size: 1.05rem; margin-bottom: 25px;'>{t['sensors_sub']}</p>", unsafe_allow_html=True)
 
     if ESP32SerialReader:
         reader = ESP32SerialReader()
@@ -509,29 +722,29 @@ elif step == 5:
     else:
         sample = {"accY": 1.12, "gyroZ": 45.2, "accX": 0.14}
 
-    h1, h2, h3 = st.columns(3)
+    h1, h2, h3 = st.columns(3, gap="large")
     with h1:
         st.markdown(f"""
-        <div class="metric-card">
-            <div class="card-title">{hw_t.get('imu1_name', 'IMU 1')}</div>
-            <div class="card-val">{sample.get('accY', 1.0):.2f} g</div>
-            <div style="color: #94A3B8; font-size: 0.8rem;">{hw_t.get('imu1_sub', 'Axial Impact')}</div>
+        <div class="feature-card">
+            <span style="color: #64748B; font-size: 0.85rem; font-weight: 700; text-transform: uppercase;">{t['imu1_name']}</span>
+            <h2 style="color: #5B51D8; font-size: 2.4rem; font-weight: 800; margin: 8px 0;">{sample.get('accY', 1.0):.2f} g</h2>
+            <span style="color: #64748B; font-size: 0.85rem;">{t['imu1_sub']}</span>
         </div>
         """, unsafe_allow_html=True)
     with h2:
         st.markdown(f"""
-        <div class="metric-card">
-            <div class="card-title">{hw_t.get('imu2_name', 'IMU 2')}</div>
-            <div class="card-val">{sample.get('gyroZ', 45.0):.1f} °/s</div>
-            <div style="color: #94A3B8; font-size: 0.8rem;">{hw_t.get('imu2_sub', 'Angular Velocity')}</div>
+        <div class="feature-card">
+            <span style="color: #64748B; font-size: 0.85rem; font-weight: 700; text-transform: uppercase;">{t['imu2_name']}</span>
+            <h2 style="color: #059669; font-size: 2.4rem; font-weight: 800; margin: 8px 0;">{sample.get('gyroZ', 45.0):.1f} °/s</h2>
+            <span style="color: #64748B; font-size: 0.85rem;">{t['imu2_sub']}</span>
         </div>
         """, unsafe_allow_html=True)
     with h3:
         st.markdown(f"""
-        <div class="metric-card">
-            <div class="card-title">{hw_t.get('imu3_name', 'IMU 3')}</div>
-            <div class="card-val">{sample.get('accX', 0.12):.2f} g</div>
-            <div style="color: #94A3B8; font-size: 0.8rem;">{hw_t.get('imu3_sub', 'Ground Reaction')}</div>
+        <div class="feature-card">
+            <span style="color: #64748B; font-size: 0.85rem; font-weight: 700; text-transform: uppercase;">{t['imu3_name']}</span>
+            <h2 style="color: #D97706; font-size: 2.4rem; font-weight: 800; margin: 8px 0;">{sample.get('accX', 0.12):.2f} g</h2>
+            <span style="color: #64748B; font-size: 0.85rem;">{t['imu3_sub']}</span>
         </div>
         """, unsafe_allow_html=True)
 
@@ -540,19 +753,19 @@ elif step == 5:
     gyro_wave = 70 * np.cos(2 * np.pi * 1.2 * t_series) + 4.0 * np.random.randn(100)
 
     fig_imu = go.Figure()
-    fig_imu.add_trace(go.Scatter(x=t_series, y=acc_wave, mode='lines', name='accY (g)', line=dict(color='#38BDF8', width=2)))
-    fig_imu.add_trace(go.Scatter(x=t_series, y=gyro_wave/100.0, mode='lines', name='gyroZ (normalized)', line=dict(color='#F59E0B', width=2)))
+    fig_imu.add_trace(go.Scatter(x=t_series, y=acc_wave, mode='lines', name='accY (g)', line=dict(color='#5B51D8', width=2.5)))
+    fig_imu.add_trace(go.Scatter(x=t_series, y=gyro_wave/100.0, mode='lines', name='gyroZ (normalized)', line=dict(color='#10B981', width=2.5)))
     fig_imu.update_layout(
-        title=hw_t.get("chart_title", "Inertial Dynamics"),
+        title=t["chart_title"],
         xaxis_title="Time (s)",
         yaxis_title="Sensor Units",
         paper_bgcolor='rgba(0,0,0,0)',
-        plot_bgcolor='rgba(15, 23, 42, 0.4)',
-        font=dict(color='#94A3B8')
+        plot_bgcolor='#FFFFFF',
+        font=dict(color='#1E1B4B')
     )
     st.plotly_chart(fig_imu, use_container_width=True)
 
-    b1, b2 = st.columns([1, 1])
+    b1, b2 = st.columns(2)
     with b1:
         if st.button(t["back"]):
             st.session_state["current_step"] = 4
@@ -566,7 +779,9 @@ elif step == 5:
 # STEP 6: INTEGRATED REPORT & PDF EXPORT
 # =============================================================
 elif step == 6:
-    st.subheader(t["report_title"])
+    st.markdown(f"<h2 style='font-size: 2.4rem; font-weight: 800; color: #1E1B4B; margin-bottom: 6px;'>{t['report_header']}</h2>", unsafe_allow_html=True)
+    st.markdown(f"<p style='color: #64748B; font-size: 1.05rem; margin-bottom: 25px;'>{t['report_sub']}</p>", unsafe_allow_html=True)
+
     p_info = st.session_state.get("patient_data", {})
     kl_grade = st.session_state.get("kl_grade", 2)
     xray_pct = (kl_grade / 4.0) * 100.0
@@ -576,46 +791,59 @@ elif step == 6:
 
     composite_index = (0.40 * xray_pct) + (0.30 * gait_pct) + (0.20 * symp_pct) + (0.10 * sensor_pct)
 
-    r1, r2 = st.columns([1, 1])
+    r1, r2 = st.columns(2, gap="large")
     with r1:
-        risk_color = "#EF4444" if composite_index >= 60 else ("#F59E0B" if composite_index >= 35 else "#10B981")
-        tier = t["tier_high"] if composite_index >= 60 else t["tier_mod"]
+        risk_color = "#DC2626" if composite_index >= 60 else ("#D97706" if composite_index >= 35 else "#059669")
+        risk_bg = "#FEE2E2" if composite_index >= 60 else ("#FEF3C7" if composite_index >= 35 else "#DCFCE7")
+        tier = t["tier_high"] if composite_index >= 60 else (t["tier_mod"] if composite_index >= 35 else t["tier_low"])
 
         st.markdown(f"""
-        <div class="metric-card" style="border-left: 4px solid {risk_color};">
-            <div class="card-title">{t['composite_title']}</div>
-            <div class="card-val" style="color: {risk_color};">{composite_index:.1f} / 100</div>
-            <div style="color: #94A3B8; font-size: 0.9rem;">Diagnostic Classification: <b>{tier}</b></div>
+        <div style="background: #FFFFFF; border-radius: 24px; padding: 30px; box-shadow: 0 10px 30px rgba(91, 81, 216, 0.06); border: 2px solid {risk_color}; margin-bottom: 25px;">
+            <span style="color: #64748B; font-size: 0.9rem; font-weight: 700; text-transform: uppercase;">{t['composite_label']}</span>
+            <div style="font-size: 3.4rem; font-weight: 800; color: {risk_color}; margin: 8px 0;">
+                {composite_index:.1f} <span style="font-size: 1.5rem; color: #64748B;">/ 100</span>
+            </div>
+            <div style="background: {risk_bg}; color: {risk_color}; font-weight: 800; font-size: 1.05rem; padding: 8px 18px; border-radius: 30px; display: inline-block;">
+                {tier}
+            </div>
         </div>
         """, unsafe_allow_html=True)
 
-        st.markdown("##### Dimensional Synthesis:")
-        st.write(f"- 👤 **Subject:** `{p_info.get('name', 'N/A')}` ({p_info.get('age', 58)}y {p_info.get('gender', 'M')}) | BMI: `{p_info.get('bmi', 25.0):.1f}`")
-        st.write(f"- 🩻 **Radiographic (DenseNet-121):** Kellgren–Lawrence Grade {kl_grade} ({xray_pct:.0f}%) — *Weight 40%*")
-        st.write(f"- 🚶 **Gait Kinematics (XGBoost):** Antalgic Probability {gait_pct:.1f}% — *Weight 30%*")
-        st.write(f"- 📋 **Clinical Questionnaire:** Symptom Burden {symp_pct:.1f}% — *Weight 20%*")
-        st.write(f"- 📡 **Wearable Sensor (ESP32):** Motion Index {sensor_pct:.1f}% — *Weight 10%*")
+        st.markdown(f"""
+        <div style="background: #FFFFFF; border-radius: 20px; padding: 25px; box-shadow: 0 6px 20px rgba(0,0,0,0.04); border: 1px solid #EAE7FB;">
+            <h4 style="color: #5B51D8; margin-top: 0; margin-bottom: 12px;">{t['breakdown_title']}</h4>
+            <p style="margin: 6px 0; color: #334155;">• <b>{t['item_patient']}:</b> {p_info.get('name')} ({p_info.get('age')}y) | BMI: {p_info.get('bmi'):.1f} kg/m²</p>
+            <p style="margin: 6px 0; color: #334155;">• 🩻 <b>{t['item_xray']}:</b> KL Grade {kl_grade} ({xray_pct:.0f}%) — <i>{t['weight_label']} 40%</i></p>
+            <p style="margin: 6px 0; color: #334155;">• 🚶 <b>{t['item_gait']}:</b> {gait_pct:.1f}% — <i>{t['weight_label']} 30%</i></p>
+            <p style="margin: 6px 0; color: #334155;">• 📋 <b>{t['item_womac']}:</b> {symp_pct:.1f}% — <i>{t['weight_label']} 20%</i></p>
+            <p style="margin: 6px 0; color: #334155;">• 📡 <b>{t['item_imu']}:</b> {sensor_pct:.1f}% — <i>{t['weight_label']} 10%</i></p>
+        </div>
+        """, unsafe_allow_html=True)
 
     with r2:
         radar_fig = go.Figure()
         radar_fig.add_trace(go.Scatterpolar(
             r=[xray_pct, gait_pct, symp_pct, sensor_pct],
-            theta=['Radiograph (KL)', 'Vision Gait', 'Symptoms', 'Inertial Motion'],
+            theta=list(t["radar_labels"]),
             fill='toself',
             name='Patient Profile',
-            line=dict(color='#38BDF8')
+            line=dict(color='#5B51D8', width=2.5),
+            fillcolor='rgba(91, 81, 216, 0.2)'
         ))
         radar_fig.update_layout(
-            polar=dict(radialaxis=dict(visible=True, range=[0, 100])),
+            polar=dict(
+                radialaxis=dict(visible=True, range=[0, 100], gridcolor='#E2E8F0'),
+                angularaxis=dict(gridcolor='#E2E8F0')
+            ),
             showlegend=False,
-            margin=dict(l=30, r=30, t=20, b=20),
+            margin=dict(l=35, r=35, t=25, b=25),
             paper_bgcolor='rgba(0,0,0,0)',
-            font=dict(color='#94A3B8')
+            font=dict(color='#1E1B4B', size=11)
         )
         st.plotly_chart(radar_fig, use_container_width=True)
 
     st.divider()
-    c_btn1, c_btn2 = st.columns([1, 1])
+    c_btn1, c_btn2 = st.columns(2)
     with c_btn1:
         if generate_clinical_pdf is not None:
             pdf_bytes = generate_clinical_pdf(
@@ -628,7 +856,7 @@ elif step == 6:
             )
             
             st.download_button(
-                label="📥 Download Official Clinical Report (PDF)",
+                label=t["download_btn"],
                 data=pdf_bytes,
                 file_name=f"ARTHRO_AI_Report_{p_info.get('id', 'Patient')}.pdf",
                 mime="application/pdf",
@@ -636,9 +864,9 @@ elif step == 6:
                 use_container_width=True
             )
         else:
-            st.error("Install reportlab: 'pip install reportlab' to download PDFs.")
+            st.error("ReportLab is not installed. Run 'pip install reportlab' to download PDFs.")
 
     with c_btn2:
-        if st.button(t["restart"], use_container_width=True):
+        if st.button(t["evaluate_again_btn"], use_container_width=True):
             st.session_state["current_step"] = 0
             st.rerun()

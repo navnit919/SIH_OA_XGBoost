@@ -6,29 +6,29 @@ import streamlit as st
 
 HW_STRINGS = {
     "English": {
-        "title": "📡 Step 5: Wearable Inertial Motion Capture (ESP32 + 3× MPU6050)",
+        "title": "📡 Wearable Inertial Motion Sensing (ESP32 + 3× MPU6050)",
         "caption": "6-DOF Real-Time Inertial Stream | CSV Protocol: accX,accY,accZ,gyroX,gyroY,gyroZ via Serial GPIO 21/22",
-        "imu1_name": "IMU 1: Thigh Acceleration (Y)",
+        "imu1_name": "IMU 1: Thigh Accel (Y)",
         "imu1_sub": "Axial Impact Load",
-        "imu2_name": "IMU 2: Shank Gyroscope (Z)",
+        "imu2_name": "IMU 2: Shank Gyro (Z)",
         "imu2_sub": "Sagittal Angular Velocity",
-        "imu3_name": "IMU 3: Ankle Shock Absorption",
-        "imu3_sub": "Ground Reaction Shock Profile",
-        "chart_title": "Real-Time 6-DOF Inertial Dynamics Stream"
+        "imu3_name": "IMU 3: Ankle Shock",
+        "imu3_sub": "Ground Reaction Attenuation",
+        "chart_title": "Real-Time 6-DOF Inertial Motion Waveform"
     },
     "हिन्दी": {
-        "title": "📡 चरण 5: वियरेबल इनर्शियल मोशन सेंसर (ESP32 + 3× MPU6050)",
-        "caption": "6-DOF रीयल-टाइम डेटा स्ट्रीम | CSV प्रोटोकॉल: accX,accY,accZ,gyroX,gyroY,gyroZ (सीरियल GPIO 21/22)",
+        "title": "📡 वियरेबल इनर्शियल मोशन सेंसर (ESP32 + 3× MPU6050)",
+        "caption": "6-DOF रीयल-टाइम डेटा स्ट्रीम | CSV प्रोटोकॉल: accX,accY,accZ,gyroX,gyroY,gyroZ",
         "imu1_name": "सेंसर 1: जांघ का त्वरण (Thigh Accel Y)",
         "imu1_sub": "अक्षीय भार प्रभाव (Axial Impact Load)",
-        "imu2_name": "सेंसर 2: पिंडली का जायरोस्कोप (Shank Gyro Z)",
+        "imu2_name": "सेंसर 2: पिंडली का जायरो (Shank Gyro Z)",
         "imu2_sub": "घुटने की कोणीय गति (Angular Velocity)",
-        "imu3_name": "सेंसर 3: टखने का शॉक अवशोषण (Ankle Shock)",
+        "imu3_name": "सेंसर 3: टखने का झटका (Ankle Shock)",
         "imu3_sub": "जमीन से लगने वाला झटका (Ground Reaction)",
         "chart_title": "रीयल-टाइम 6-DOF मोशन सेंसर वेवफॉर्म"
     },
     "অসমীয়া": {
-        "title": "📡 স্তৰ ৫: ৱিয়েৰেবল মোচন চেন্সৰ (ESP32 + ৩× MPU6050)",
+        "title": "📡 ৱিয়েৰেবল মোচন চেন্সৰ (ESP32 + ৩× MPU6050)",
         "caption": "৬-DOF ৰিয়েল-টাইম গতিবিধি | CSV প্ৰট'কল (GPIO 21/22 চিৰিয়েল ডাটা)",
         "imu1_name": "চেন্সৰ ১: উৰুৰ ত্বৰণ (Thigh Accel)",
         "imu1_sub": "ওপৰৰ পৰা পৰা চাপ (Impact Load)",
@@ -39,7 +39,7 @@ HW_STRINGS = {
         "chart_title": "ৰিয়েল-টাইম মোচন চেন্সৰ তৰংগ"
     },
     "বাংলা": {
-        "title": "📡 ধাপ ৫: পরিধানযোগ্য মোশন সেন্সর (ESP32 + ৩টি MPU6050)",
+        "title": "📡 পরিধানযোগ্য মোশন সেন্সর (ESP32 + ৩টি MPU6050)",
         "caption": "৬-DOF রিয়েল-টাইম ডেটা স্ট্রিম | CSV প্রোটোকল (GPIO 21/22 সিরিয়াল যোগাযোগ)",
         "imu1_name": "সেন্সর ১: উরুর ত্বরণ (Thigh Accel Y)",
         "imu1_sub": "উল্লম্ব লোড প্রভাব (Axial Impact)",
@@ -73,8 +73,8 @@ class ESP32SerialReader:
                     parts = [float(x.strip()) for x in line.split(",")]
                     if len(parts) >= 6:
                         return {
-                            "accX": parts[0], "accY": parts[1], "accZ": parts[2],
-                            "gyroX": parts[3], "gyroY": parts[4], "gyroZ": parts[5], "live": True
+                            "accX": parts[0], "accY": parts, "accZ": parts,
+                            "gyroX": parts, "gyroY": parts, "gyroZ": parts, "live": True
                         }
             except Exception:
                 pass

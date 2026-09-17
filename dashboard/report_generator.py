@@ -31,14 +31,14 @@ def generate_clinical_pdf(patient_data, kl_grade, xray_conf, gait_prob, symptom_
         fontName='Helvetica-Bold',
         fontSize=20,
         leading=24,
-        textColor=colors.HexColor('#0F172A'),
+        textColor=colors.HexColor('#1E1B4B'),
         spaceAfter=4
     )
     subtitle_style = ParagraphStyle(
         'DocSubTitle',
         parent=styles['Normal'],
         fontName='Helvetica',
-        fontSize=9,
+        fontSize=9.5,
         leading=13,
         textColor=colors.HexColor('#64748B')
     )
@@ -46,9 +46,9 @@ def generate_clinical_pdf(patient_data, kl_grade, xray_conf, gait_prob, symptom_
         'SectionHeading',
         parent=styles['Heading2'],
         fontName='Helvetica-Bold',
-        fontSize=11,
+        fontSize=11.5,
         leading=15,
-        textColor=colors.HexColor('#1E293B'),
+        textColor=colors.HexColor('#5B51D8'),
         spaceBefore=12,
         spaceAfter=6
     )
@@ -73,11 +73,10 @@ def generate_clinical_pdf(patient_data, kl_grade, xray_conf, gait_prob, symptom_
     story.append(Paragraph("Multimodal Osteoarthritis Screening & Quantitative Risk Assessment", subtitle_style))
     story.append(Paragraph(f"Generated: {datetime.now().strftime('%d %B %Y, %H:%M:%S')} | Institutional Node: NITN-CPS-2026", subtitle_style))
     story.append(Spacer(1, 8))
-    story.append(HRFlowable(width="100%", thickness=2, color=colors.HexColor('#0284C7'), spaceBefore=2, spaceAfter=12))
+    story.append(HRFlowable(width="100%", thickness=2, color=colors.HexColor('#5B51D8'), spaceBefore=2, spaceAfter=12))
 
-    # 2. Patient Clinical Demographics
+    # 2. Patient Demographics Table
     story.append(Paragraph("I. PATIENT CLINICAL DEMOGRAPHICS", section_heading))
-    
     name = patient_data.get("name", "N/A")
     pid = patient_data.get("id", "N/A")
     age = patient_data.get("age", 58)
@@ -98,9 +97,9 @@ def generate_clinical_pdf(patient_data, kl_grade, xray_conf, gait_prob, symptom_
     
     patient_table = Table(patient_table_data, colWidths=[110, 155, 135, 140])
     patient_table.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#F8FAFC')),
-        ('BOX', (0,0), (-1,-1), 1, colors.HexColor('#E2E8F0')),
-        ('INNERGRID', (0,0), (-1,-1), 0.5, colors.HexColor('#E2E8F0')),
+        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FBF9F5')),
+        ('BOX', (0,0), (-1,-1), 1, colors.HexColor('#EAE7FB')),
+        ('INNERGRID', (0,0), (-1,-1), 0.5, colors.HexColor('#EAE7FB')),
         ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
         ('TOPPADDING', (0,0), (-1,-1), 5),
         ('BOTTOMPADDING', (0,0), (-1,-1), 5),
@@ -108,7 +107,7 @@ def generate_clinical_pdf(patient_data, kl_grade, xray_conf, gait_prob, symptom_
     story.append(patient_table)
     story.append(Spacer(1, 10))
 
-    # 3. Composite Diagnostic Summary Box
+    # 3. Composite Diagnostic Summary
     xray_pct = (kl_grade / 4.0) * 100.0
     gait_pct = gait_prob * 100.0
     symp_pct = symptom_score
@@ -130,7 +129,7 @@ def generate_clinical_pdf(patient_data, kl_grade, xray_conf, gait_prob, symptom_
 
     summary_box_data = [
         [Paragraph(f"<b>COMPOSITE OA DIAGNOSTIC INDEX: {composite_index:.1f} / 100</b>", ParagraphStyle('W1', parent=bold_style, fontSize=11, textColor=tier_color))],
-        [Paragraph(f"<b>CLINICAL TIER:</b> {tier_title}", ParagraphStyle('W2', parent=bold_style, fontSize=9, textColor=colors.HexColor('#1E293B')))]
+        [Paragraph(f"<b>CLINICAL TIER:</b> {tier_title}", ParagraphStyle('W2', parent=bold_style, fontSize=9, textColor=colors.HexColor('#1E1B4B')))]
     ]
     summary_table = Table(summary_box_data, colWidths=[540])
     summary_table.setStyle(TableStyle([
@@ -144,7 +143,6 @@ def generate_clinical_pdf(patient_data, kl_grade, xray_conf, gait_prob, symptom_
 
     # 4. Multimodal Pillar Findings Table
     story.append(Paragraph("II. INDEPENDENT MODALITY EVALUATION", section_heading))
-    
     kl_labels = {
         0: "Grade 0 (Normal - No Radiographic OA)",
         1: "Grade 1 (Doubtful JSN, Minute Osteophytes)",
@@ -182,13 +180,13 @@ def generate_clinical_pdf(patient_data, kl_grade, xray_conf, gait_prob, symptom_
 
     modality_table = Table(modality_table_data, colWidths=[125, 120, 235, 60])
     modality_table.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#0F172A')),
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#5B51D8')),
         ('TEXTCOLOR', (0,0), (-1,0), colors.white),
-        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#CBD5E1')),
+        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#EAE7FB')),
         ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
         ('TOPPADDING', (0,0), (-1,-1), 5),
         ('BOTTOMPADDING', (0,0), (-1,-1), 5),
-        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor('#F8FAFC')])
+        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor('#FBF9F5')])
     ]))
     story.append(modality_table)
     story.append(Spacer(1, 10))

@@ -14,7 +14,9 @@ import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
+# Safe traversal to project root
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
 XGBOOST_PATH_V5 = PROJECT_ROOT / "models" / "gait" / "oa_xgboost_gait_model_v5.pkl"
 XGBOOST_PATH_V2 = PROJECT_ROOT / "models" / "gait" / "oa_xgboost_gait_model_v2.pkl"
 XGBOOST_PATH = XGBOOST_PATH_V5 if XGBOOST_PATH_V5.exists() else XGBOOST_PATH_V2
@@ -22,8 +24,8 @@ POSE_MODEL_PATH = PROJECT_ROOT / "camera" / "pose_landmarker_lite.task"
 
 GAIT_STRINGS = {
     "English": {
-        "header": "🚶 Gait & Posture Kinematic Analysis",
-        "proto_title": "📋 Gait Analysis Instructions (Patient Protocol)",
+        "header": "🚶 Gait Kinematics & Posture Assessment",
+        "proto_title": "📋 Clinical Gait Protocol (12-Point Checklist)",
         "setup_title": "📐 Setup & Positioning",
         "walk_title": "🚶 Walking Protocol",
         "points": [
@@ -40,16 +42,16 @@ GAIT_STRINGS = {
             "Avoid sudden stops or turns.",
             "Keep walking until the recording is complete."
         ],
-        "modes": ["📁 Upload Recorded Walking Video", "📷 Live Webcam Assessment (40 Bilateral Frames)"],
+        "modes": ["📁 Upload Walking Video (.mp4, .avi)", "📷 Live Camera Stream (40 Bilateral Frames)"],
         "btn_video": "🚀 Analyze Uploaded Video",
         "btn_live": "📷 Start Live Camera Assessment (40 Frames)",
-        "risk_title": "Gait OA-Pattern Risk",
+        "risk_title": "Gait OA-Pattern Risk Score",
         "status_title": "Kinematic Status",
-        "asym_title": "Average Bilateral Asymmetry Disparity"
+        "asym_title": "Bilateral Asymmetry Disparity"
     },
     "हिन्दी": {
         "header": "🚶 चाल एवं शारीरिक मुद्रा विश्लेषण (Gait Kinematics)",
-        "proto_title": "📋 चाल परीक्षण निर्देश (मरीज के लिए नियम)",
+        "proto_title": "📋 चाल परीक्षण निर्देश (12-बिंदु नियम)",
         "setup_title": "📐 कैमरा एवं शारीरिक स्थिति",
         "walk_title": "🚶 चलने के नियम",
         "points": [
@@ -67,15 +69,15 @@ GAIT_STRINGS = {
             "रिकॉर्डिंग पूरी होने तक सामान्य रूप से चलते रहें।"
         ],
         "modes": ["📁 रिकॉर्ड किया गया वीडियो अपलोड करें", "📷 लाइव वेबकैम परीक्षण (40 फ्रेम्स)"],
-        "btn_video": "🚀 अपलोड किए गए वीडियो का विश्लेषण करें",
-        "btn_live": "📷 लाइव कैमरा परीक्षण शुरू करें (40 फ्रेम्स)",
+        "btn_video": "🚀 वीडियो का विश्लेषण करें",
+        "btn_live": "📷 लाइव कैमरा परीक्षण शुरू करें",
         "risk_title": "चाल के आधार पर गठिया का जोखिम",
         "status_title": "चाल स्थिति",
         "asym_title": "दोनों पैरों में असंतुलन (Bilateral Asymmetry)"
     },
     "অসমীয়া": {
         "header": "🚶 খোজ-কাটল আৰু শাৰীৰিক অৱস্থান বিশ্লেষণ (Gait Kinematics)",
-        "proto_title": "📋 খোজ পৰীক্ষাৰ নিয়মসমূহ (ৰোগীৰ বাবে নিৰ্দেশনা)",
+        "proto_title": "📋 খোজ পৰীক্ষাৰ নিয়মসমূহ (১২টা গুৰুত্বপূৰ্ণ নিয়ম)",
         "setup_title": "📐 কেমেৰা আৰু অৱস্থান",
         "walk_title": "🚶 খোজ কঢ়াৰ নিয়ম",
         "points": [
@@ -97,11 +99,11 @@ GAIT_STRINGS = {
         "btn_live": "📷 লাইভ কেমেৰা পৰীক্ষা আৰম্ভ কৰক",
         "risk_title": "খোজৰ আধাৰত বাতবিষৰ সম্ভাৱনা",
         "status_title": "খোজৰ অৱস্থা",
-        "asym_title": "দুয়ো ভৰিৰ অসামঞ্জস্যতা (Asymmetry)"
+        "asym_title": "দুয়ো ভৰিৰ অসামঞ্জস্যতা"
     },
     "বাংলা": {
         "header": "🚶 চলনভঙ্গি ও শারীরিক অবস্থান বিশ্লেষণ (Gait Kinematics)",
-        "proto_title": "📋 হাঁটার পরীক্ষা সংক্রান্ত নির্দেশনা (রোগীর নিয়মাবলী)",
+        "proto_title": "📋 হাঁটার পরীক্ষা সংক্রান্ত নির্দেশনা (১২ দফা নিয়মাবলী)",
         "setup_title": "📐 ক্যামেরা ও শারীরিক অবস্থান",
         "walk_title": "🚶 হাঁটার নিয়ম",
         "points": [
@@ -123,7 +125,7 @@ GAIT_STRINGS = {
         "btn_live": "📷 লাইভ ক্যামেরা পরীক্ষা শুরু করুন",
         "risk_title": "চলনের ভিত্তিতে বাতজনিত ঝুঁকি",
         "status_title": "চলনভঙ্গির অবস্থা",
-        "asym_title": "উভয় পায়ের অসমতা (Bilateral Asymmetry)"
+        "asym_title": "উভয় পায়ের অসমতা (Asymmetry)"
     }
 }
 
@@ -133,7 +135,7 @@ def load_gait_model():
         return None, None, None
     data = joblib.load(XGBOOST_PATH)
     if isinstance(data, dict):
-        for key in ["model", "classifier", "pipeline", "xgb_model", "best_estimator", "gait_model"]:
+        for key in ("model", "classifier", "pipeline", "xgb_model", "best_estimator", "gait_model"):
             if key in data and hasattr(data[key], "predict_proba"):
                 return data[key], data.get("scaler", None), data.get("features", None)
         for val in data.values():
@@ -235,11 +237,11 @@ def process_video_source(source, is_uploaded_video=False):
                     left_angle = calculate_angle([l_hip.x, l_hip.y], [l_knee.x, l_knee.y], [l_ankle.x, l_ankle.y])
                     if left_angle is not None: left_angles.append(left_angle)
 
-                for pt in [r_hip, r_knee, r_ankle]: cv2.circle(frame, (int(pt.x * w), int(pt.y * h)), 6, (0, 255, 0), -1)
+                for pt in (r_hip, r_knee, r_ankle): cv2.circle(frame, (int(pt.x * w), int(pt.y * h)), 6, (0, 255, 0), -1)
                 cv2.line(frame, (int(r_hip.x * w), int(r_hip.y * h)), (int(r_knee.x * w), int(r_knee.y * h)), (0, 255, 0), 3)
                 cv2.line(frame, (int(r_knee.x * w), int(r_knee.y * h)), (int(r_ankle.x * w), int(r_ankle.y * h)), (0, 255, 0), 3)
 
-                for pt in [l_hip, l_knee, l_ankle]: cv2.circle(frame, (int(pt.x * w), int(pt.y * h)), 6, (255, 0, 0), -1)
+                for pt in (l_hip, l_knee, l_ankle): cv2.circle(frame, (int(pt.x * w), int(pt.y * h)), 6, (255, 0, 0), -1)
                 cv2.line(frame, (int(l_hip.x * w), int(l_hip.y * h)), (int(l_knee.x * w), int(l_knee.y * h)), (255, 0, 0), 3)
                 cv2.line(frame, (int(l_knee.x * w), int(l_knee.y * h)), (int(l_ankle.x * w), int(l_ankle.y * h)), (255, 0, 0), 3)
 
@@ -264,9 +266,9 @@ def process_video_source(source, is_uploaded_video=False):
     l_feat = extract_features(left_angles)
     asym = calculate_asymmetry(r_feat, l_feat)
 
-    feat_order = feat_names if (feat_names and isinstance(feat_names, list)) else [
+    feat_order = feat_names if (feat_names and isinstance(feat_names, (list, tuple))) else (
         "knee_rom", "knee_mean", "knee_std", "knee_max_flex", "knee_min_flex", "knee_median"
-    ]
+    )
     X = np.array([r_feat.get(name, 0.0) for name in feat_order], dtype=float).reshape(1, -1)
 
     if scaler_obj is not None:
@@ -275,8 +277,10 @@ def process_video_source(source, is_uploaded_video=False):
 
     try:
         if hasattr(model_obj, "predict_proba"):
-            prob = float(model_obj.predict_proba(X)[0][1])
-            pred = int(model_obj.predict(X)[0])
+            probs_flat = model_obj.predict_proba(X).flatten().tolist()
+            prob = float(probs_flat[-1])
+            preds_flat = model_obj.predict(X).flatten().tolist()
+            pred = int(preds_flat[-1])
         else:
             prob = 0.65; pred = 1
     except Exception:
@@ -290,11 +294,28 @@ def process_video_source(source, is_uploaded_video=False):
 
     st.success("✅ Assessment Complete.")
     c1, c2 = st.columns(2)
-    with c1: st.metric(t["risk_title"], f"{prob * 100:.2f}%")
-    with c2: st.metric(t["status_title"], "Antalgic / OA Pattern" if pred == 1 else "Normal Biomechanical Gait")
+    with c1: 
+        st.markdown(f"""
+        <div style="background: #FFFFFF; border-radius: 18px; padding: 20px; box-shadow: 0 8px 20px rgba(91, 81, 216, 0.05); border: 1px solid #EAE7FB;">
+            <span style="color: #64748B; font-size: 0.85rem; font-weight: 700; text-transform: uppercase;">{t['risk_title']}</span><br>
+            <span style="color: {'#DC2626' if prob > 0.5 else '#059669'}; font-size: 2.4rem; font-weight: 800;">{prob * 100:.1f}%</span>
+        </div>
+        """, unsafe_allow_html=True)
+    with c2:
+        status_txt = "Antalgic / OA Pattern" if pred == 1 else "Normal Biomechanical Gait"
+        st.markdown(f"""
+        <div style="background: #FFFFFF; border-radius: 18px; padding: 20px; box-shadow: 0 8px 20px rgba(91, 81, 216, 0.05); border: 1px solid #EAE7FB;">
+            <span style="color: #64748B; font-size: 0.85rem; font-weight: 700; text-transform: uppercase;">{t['status_title']}</span><br>
+            <span style="color: #1E1B4B; font-size: 1.5rem; font-weight: 800;">{status_txt}</span>
+        </div>
+        """, unsafe_allow_html=True)
     
     avg_asym = float(np.mean(list(asym.values())))
-    st.metric(t["asym_title"], f"{avg_asym:.2f}%")
+    st.markdown(f"""
+    <div style="background: #EEECFB; border-radius: 14px; padding: 14px 20px; margin-top: 15px; font-weight: 700; color: #5B51D8;">
+        {t['asym_title']}: <span style="font-size: 1.3rem;">{avg_asym:.2f}%</span>
+    </div>
+    """, unsafe_allow_html=True)
 
 def gait_module():
     lang = st.session_state.get("language", "English")
@@ -302,7 +323,7 @@ def gait_module():
 
     mode = st.radio("", t["modes"], horizontal=True)
 
-    if "Upload" in mode or "আপলোড" in mode or "ভিডিও" in mode:
+    if "Upload" in mode or "আপলোড" in mode or "ভিডিও" in mode or "वीडियो" in mode:
         video_file = st.file_uploader("Upload Gait Video (.mp4, .avi, .mov)", type=["mp4", "avi", "mov"])
         if video_file is not None:
             tfile = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4")
@@ -310,7 +331,7 @@ def gait_module():
             tfile.close()
             st.video(tfile.name)
             if st.button(t["btn_video"], type="primary"):
-                with st.spinner("Analyzing..."):
+                with st.spinner("Analyzing kinematics..."):
                     process_video_source(tfile.name, is_uploaded_video=True)
                 try: os.remove(tfile.name)
                 except Exception: pass
